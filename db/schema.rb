@@ -51,14 +51,14 @@ ActiveRecord::Schema.define(version: 20170910191438) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",                           null: false
-    t.string   "phone",                          null: false
+    t.string   "name",                            null: false
+    t.string   "phone",                           null: false
     t.string   "company"
-    t.string   "time_zone",                      null: false
-    t.string   "password_digest",                null: false
-    t.boolean  "active_user",     default: true
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.string   "time_zone",                       null: false
+    t.string   "password_digest",                 null: false
+    t.boolean  "active_user",     default: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.index ["phone"], name: "index_users_on_phone", using: :btree
   end
 

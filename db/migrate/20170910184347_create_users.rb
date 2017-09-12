@@ -6,7 +6,7 @@ class CreateUsers < ActiveRecord::Migration[5.0]
     	t.string :company
       t.string :time_zone, null: false
     	t.string :password_digest, null: false
-      t.boolean :active_user, default: true
+      t.boolean :active_user, default: false
       t.timestamps null: false
     end
 

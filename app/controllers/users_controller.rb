@@ -13,7 +13,7 @@ class UsersController < ApplicationController
 				body: "Fivv user request. #{user.name}#{' from ' + user.company if user.company} wants to create an account. Reply APPROVE #{user.id} to approve."
 			)
 			session[:user_id] = user.id
-			redirect_to 'user#success'
+			redirect_to 'users#success'
 		else
 			errors = user.errors.full_messages
 			render :new

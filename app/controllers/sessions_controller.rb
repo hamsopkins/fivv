@@ -8,7 +8,7 @@ class SessionsController < ApplicationController
 		if user 
 			if user.authenticate(session_params[:password])
 				session[:user_id] = user.id
-				redirect_to :root
+				user.active_user ? redirect_to 'users#show' : redirect_to 'users#success'
 			else
 				errors = ["Authentication failed"]
 				render :new

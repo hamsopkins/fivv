@@ -13,7 +13,7 @@ class CreateConferences < ActiveRecord::Migration[5.0]
     	t.timestamps null: false
     end
 
-    add_index :conferences, :conf_sid, unique: true
-    add_index :conferences, [:start_time, :access_code]
+    add_index :conferences, [:conf_sid, :access_code], unique: true
+    add_index :conferences, :start_time
   end
 end

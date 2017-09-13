@@ -20,6 +20,13 @@ class UsersController < ApplicationController
 		end
 	end
 
+	def success
+		redirect_to :root unless helpers.logged_in?
+		user = User.find(session[:user_id])
+		redirect_to 'users#show' if user.active_user
+		render :success
+	end
+
 	private
 	def user_params
 		params.require(:user).permit :name, :phone, :company, :password, :password_confirmation, :time_zone

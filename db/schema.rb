@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170910191438) do
+ActiveRecord::Schema.define(version: 20170914201121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,16 +26,18 @@ ActiveRecord::Schema.define(version: 20170910191438) do
   end
 
   create_table "conferences", force: :cascade do |t|
-    t.string   "name",                       null: false
-    t.integer  "user_id",                    null: false
-    t.datetime "start_time",                 null: false
-    t.datetime "end_time",                   null: false
-    t.boolean  "moderated",   default: true
+    t.string   "name",                          null: false
+    t.integer  "user_id",                       null: false
+    t.datetime "start_time",                    null: false
+    t.datetime "end_time",                      null: false
+    t.boolean  "moderated",      default: true
     t.string   "access_code"
-    t.string   "admin_pin",                  null: false
+    t.string   "admin_pin",                     null: false
     t.string   "conf_sid"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "admin_call_sid"
+    t.index ["admin_call_sid"], name: "index_conferences_on_admin_call_sid", using: :btree
     t.index ["conf_sid", "access_code"], name: "index_conferences_on_conf_sid_and_access_code", unique: true, using: :btree
     t.index ["start_time"], name: "index_conferences_on_start_time", using: :btree
   end

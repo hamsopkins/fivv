@@ -68,7 +68,7 @@ class CallsController < ApplicationController
 							recordingStatusCallback: '/recording_callback',
 							statusCallback: '/callback',
 							statusCallbackEvent: 'start end join leave'
-							)
+						)
 					end
 				end
 			else
@@ -80,4 +80,41 @@ class CallsController < ApplicationController
 		render plain: response.text
 	end
 
+	def incoming_sms
+		if params['From'] == ENV["CONFIRMATION_NUMBER"] && params['Body'].downcase.start_with?("approve")
+			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+			user_id = params['Body'].split(' ').last.to_i
+			user = User.find(user_id)
+			if user
+				user.active_user = true
+	# add row to users table datetime for account expiry?
+	# then disable login after expiry (say one week?)
+				if user.save
+					client.messages.create(
+						from: ENV["TWILIO_NUMBER"],
+						to: ENV["CONFIRMATION_NUMBER"],
+						body: "User #{user.name}#{' from ' + user.company if user.company} has been approved."
+					)
+					client.messages.create(
+						from: ENV["TWILIO_NUMBER"],
+						to: "+1#{user.phone}",
+	# if account time limits are added, make sure the confirmation text mentions this
+						body: "Hello from Fivv! Your account is now active. Go ahead - log in and try it out!"
+					)
+				else
+					client.messages.create(
+						from: ENV["TWILIO_NUMBER"],
+						to: ENV["CONFIRMATION_NUMBER"],
+						body: "ERROR! User #{user.name}#{' from ' + user.company if user.company} can't be approved."
+					)
+				end
+			else
+				client.messages.create(
+					from: ENV["TWILIO_NUMBER"],
+					to: ENV["CONFIRMATION_NUMBER"],
+					body: "ERROR! User not found."
+				)
+			end
+		end
+	end
 end

@@ -15,7 +15,7 @@ class UsersController < ApplicationController
 			session[:user_id] = user.id
 			redirect_to 'users#success'
 		else
-			errors = user.errors.full_messages
+			@errors = user.errors.full_messages
 			render :new
 		end
 	end

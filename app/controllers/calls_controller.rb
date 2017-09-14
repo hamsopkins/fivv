@@ -93,7 +93,7 @@ class CallsController < ApplicationController
 					client.messages.create(
 						from: ENV["TWILIO_NUMBER"],
 						to: ENV["CONFIRMATION_NUMBER"],
-						body: "User #{user.name}#{' from ' + user.company if user.company} has been approved."
+						body: "User #{user.name}#{' from ' + user.company if user.company.length > 0} has been approved."
 					)
 					client.messages.create(
 						from: ENV["TWILIO_NUMBER"],
@@ -105,7 +105,7 @@ class CallsController < ApplicationController
 					client.messages.create(
 						from: ENV["TWILIO_NUMBER"],
 						to: ENV["CONFIRMATION_NUMBER"],
-						body: "ERROR! User #{user.name}#{' from ' + user.company if user.company} can't be approved."
+						body: "ERROR! User #{user.name}#{' from ' + user.company if user.company.length > 0} can't be approved."
 					)
 				end
 			else

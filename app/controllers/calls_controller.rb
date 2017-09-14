@@ -87,8 +87,7 @@ class CallsController < ApplicationController
 			user = User.find(user_id)
 			if user
 				user.active_user = true
-	# add row to users table datetime for account expiry?
-	# then disable login after expiry (say one week?)
+				user.expiration = Time.now + 604800
 				if user.save
 					client.messages.create(
 						from: ENV["TWILIO_NUMBER"],
@@ -98,8 +97,7 @@ class CallsController < ApplicationController
 					client.messages.create(
 						from: ENV["TWILIO_NUMBER"],
 						to: "+1#{user.phone}",
-	# if account time limits are added, make sure the confirmation text mentions this
-						body: "Hello from Fivv! Your account is now active. Go ahead - log in and try it out!"
+						body: "Hello from Fivv! Your trial account is now active. Go ahead - log in and try it out! Your account will expire in seven days."
 					)
 				else
 					client.messages.create(

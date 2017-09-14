@@ -10,5 +10,5 @@ Rails.application.routes.draw do
   post '/incoming', to: 'calls#incoming', as: :calls_path
   post '/select_conference', to: 'calls#select_conference'
   post '/authenticate/:id', to: 'calls#authenticate'
-
+  post '/incoming_sms', to: 'calls#incoming_sms'
 end

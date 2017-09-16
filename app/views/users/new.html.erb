@@ -1,3 +1,6 @@
+<h1>Register for Fivv</h1>
+<h2>Important note!</h2>
+<p>Fivv is in trial mode. All accounts require administrator confirmation to use the web app. Once your account is approved, you will receive a text message. Your account will remain active for one week following admin approval.</p>
 <% if @errors %>
 	<h2>Errors</h2>
 	<ul>
@@ -27,8 +30,8 @@
 		<%= f.password_field(:password) %>
 	</div>
 	<div>
-		<%= f.label(:password_confirmation, "Reenter your password") %>
+		<%= f.label(:password_confirmation, "Reenter password") %>
 		<%= f.password_field(:password_confirmation) %>
 	</div>
-	<%= f.submit %>
+	<%= f.submit("Register") %>
 <% end %>

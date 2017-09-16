@@ -9,6 +9,20 @@
   </head>
 
   <body>
+  <div>
+  	<% if logged_in? %>
+  	<%= link_to("Log out", logout_path_url, method: "delete") %>
+  	<% end %>
+  </div>
+  <div>
+    <% if @errors %>
+      <h2>Errors</h2>
+      <ul>
+      <% @errors.each do |error| %>
+        <li><%= error %></li>
+      <% end %>
+      </ul>
+    <% end %>
     <%= yield %>
   </body>
 </html>

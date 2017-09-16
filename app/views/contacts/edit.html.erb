@@ -1,7 +1,7 @@
 <h1>Update a contact</h1>
 <%= form_for(@contact, url: contact_path(@contact), method: 'patch') do |f| %>
 	<div>
-		<%= f.label(:first_name, "Name") %>
+		<%= f.label(:name, "Name") %>
 		<%= f.text_field(:name) %>
 	</div>
 	<div>

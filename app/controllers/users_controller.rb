@@ -22,9 +22,14 @@ class UsersController < ApplicationController
 
 	def success
 		redirect_to :root unless helpers.logged_in?
-		user = User.find(session[:user_id])
-		redirect_to 'users#show' if user.active_user
+		@user = User.find(session[:user_id])
+		redirect_to 'users#show' if @user.active_user
 		render :success
+	end
+
+	def show
+		redirect_to :root unless helpers.logged_in?
+		@user = User.find(session[:user_id])
 	end
 
 	private

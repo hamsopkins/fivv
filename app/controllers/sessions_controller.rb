@@ -14,7 +14,11 @@ class SessionsController < ApplicationController
 			end
 			if user.authenticate(session_params[:password])
 				session[:user_id] = user.id
-				user.active_user ? redirect_to 'users#show' : redirect_to 'users#success'
+				if user.active_user
+					redirect_to user_path(user)
+				else
+					redirect_to success_path_url
+				end
 			else
 				@errors = ["Authentication failed"]
 				render :new

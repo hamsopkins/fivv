@@ -1,13 +1,6 @@
 <h1>Register for Fivv</h1>
 <h2>Important note!</h2>
 <p>Fivv is in trial mode. All accounts require administrator confirmation to use the web app. Once your account is approved, you will receive a text message. Your account will remain active for one week following admin approval.</p>
-<% if @errors %>
-	<h2>Errors</h2>
-	<ul>
-	<% @errors.each do |error| %>
-		<li><%= error %></li>
-	<% end %>
-<% end %>
 <%= form_for :user, url: users_path, method: "post" do |f| %>
 	<div>
 		<%= f.label(:name, "Name") %>

@@ -1,0 +1,18 @@
+<h1>Update a contact</h1>
+<%= form_for(@contact, url: contact_path(@contact), method: 'patch') do |f| %>
+	<div>
+		<%= f.label(:first_name, "Name") %>
+		<%= f.text_field(:name) %>
+	</div>
+	<div>
+		<%= f.label(:phone) %>
+		<%= f.telephone_field(:phone) %>
+	</div>
+	<div>
+		<%= f.label(:time_zone, "Time zone") %>
+		<%= f.time_zone_select(:time_zone, ActiveSupport::TimeZone.us_zones, default: "Eastern Time (US & Canada)") %>
+	</div>
+	<div>
+		<%= f.submit("Update contact") %>
+	</div>
+<% end %>

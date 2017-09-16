@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root 'sessions#new'
 
-  resources :users
+  resources :users, :contacts
   
   get '/login', to: 'sessions#new'
   delete '/sessions', to: 'sessions#destroy', as: :logout_path

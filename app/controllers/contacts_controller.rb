@@ -43,20 +43,21 @@ class ContactsController < ApplicationController
 		if @contact.user == helpers.current_user
 			@contact.assign_attributes(contact_params)
 			if @contact.save
-				redirect_to contact_path(@contact.id)
+				redirect_to @contact
 			else
 				@errors = @contact.errors.full_messages
 				render :edit
 			end
 		else
-			redirect_to :root
+			redirect_to 'contacts#index'
 		end
 	end
 
 	def destroy
 		redirect_to :root unless helpers.logged_in?
 		@contact = Contact.find_by_id(params[:id])
-		@contact.destroy if belongs_to_user(@contact) if @contact
+		redirect_to 'contacts#index' unless @contact
+		@contact.destroy if @contact.user == helpers.current_user
 		redirect_to 'contacts#index'
 	end
 

@@ -1,0 +1,29 @@
+<h1>Create a conference</h1>
+<%= form_for(@conference, url: conferences_path, method: 'post') do |f| %>
+	<div>
+		<%= f.label(:name, "Conference name") %>
+		<%= f.text_field(:name) %>
+	</div>
+	<div>
+		<%= f.label(:start_time, "Start time") %>
+		<%= f.datetime_local_field(:start_time) %>
+	</div>
+	<div>
+		<%= f.label(:end_time, "End time") %>
+		<%= f.datetime_local_field(:end_time) %>
+	</div>
+	<div>
+	<%= f.label(:contacts, "Participants") %>
+	<%= f.collection_select(:contacts, Contact.where('user_id = ?', current_user.id).order(name: :desc), :id, :name, {}, multiple: true, size: 5) %>
+	</div>
+	<div>
+		<%= f.label(:moderated, "Moderated conference?") %>
+		<%= f.radio_button(:moderated, "false") %>
+		<%= f.label(:moderated_false, "no") %>
+		<%= f.radio_button(:moderated, "true", checked: true) %>
+		<%= f.label(:moderated_true, "yes") %>
+	</div>
+	<div>
+		<%= f.submit("Create conference") %>
+	</div>
+<% end %>

@@ -1,5 +1,5 @@
 class ConferencesController < ApplicationController
-	around_action :user_time_zone, only: [:edit, :show, :index, :create]
+	around_action :user_time_zone, only: [:edit, :show, :index, :create, :update]
 
 	def new
 		@conference = Conference.new unless @conference
@@ -13,10 +13,9 @@ class ConferencesController < ApplicationController
 		admin_pin = @conference.set_pin
 		puts "\n\nNEW CONFERENCE"
 		puts "ADMIN PIN: #{@admin_pin}\n\n"
-		# @conference.save
+		@conference.conference_contacts << params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map { |id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
+		@conference.inform_admin(admin_pin)
 		if @conference.save
-			@conference.conference_contacts << params['conference']['contacts'].reject {|id| id.length == 0 || ConferenceContact.find(id).user != helpers.current_user }.map { |id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
-			@conference.inform_admin(admin_pin)
 			redirect_to conference_url(@conference)
 		else
 			@errors = @conference.errors.full_messages
@@ -39,14 +38,16 @@ class ConferencesController < ApplicationController
 		redirect_to 'conferences#index' unless @conference
 		redirect_to 'conferences#index' unless @conference.user == helpers.current_user
 		@conference.assign_attributes(conference_params)
-		existing_contact_ids = @conference.conference_contacts.map { |contact| contact.id }
-		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || ConferenceContact.find(id).user != helpers.current_user }
+		existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
+		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }
 		remaining_contact_ids = existing_contact_ids & updated_contact_ids
 		uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
-		uninvited_contact_ids.map { |id| ConferenceContact.find(id) }.each do |c|
+		uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each do |c|
+			puts "uninvited #{c.contact.name}"
 			c.inform_canceled
 			c.destroy
 		end
+		remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
 		new_contact_ids = updated_contact_ids - remaining_contact_ids
 		@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
 		if @conference.save

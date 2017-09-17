@@ -14,7 +14,19 @@
 	</div>
 	<div>
 	<%= f.label(:contacts, "Participants") %>
-	<%= f.collection_select(:contacts, Contact.where('user_id = ?', current_user.id).order(name: :desc), :id, :name, {}, multiple: true, size: 5) %>
+	<input name="conference[contacts][]" type="hidden" value="" />
+	<select multiple="multiple" size="5" name="conference[contacts][]" id="conference_contacts">
+	<% @conference.user.contacts.each do |contact| %>
+		<option value="<%= contact.id %>" <%= "selected='selected'" if ConferenceContact.where("contact_id = ? AND conference_id = ?", contact.id, @conference.id).any? %>><%= contact.name %></option>
+	<% end %>
+	</select>
+	</div>
+	<div>
+		<%= f.label(:moderated, "Moderated conference?") %>
+		<%= f.radio_button(:moderated, "false") %>
+		<%= f.label(:moderated_false, "no") %>
+		<%= f.radio_button(:moderated, "true", checked: true) %>
+		<%= f.label(:moderated_true, "yes") %>
 	</div>
 	<div>
 		<%= f.submit("Update conference") %>

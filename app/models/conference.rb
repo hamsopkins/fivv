@@ -56,13 +56,12 @@ class Conference < ApplicationRecord
 	end
 
 	def inform_admin(pin)
-		conference = self
     greeting = "Hi #{self.user.name}, you have successfully created the conference #{self.name}. Please call this number on #{pretty_time(self.start_time)}."
 		pin_msg = "Conference code: #{self.access_code}\nAdmin PIN: #{pin}"
 		client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
 		client.messages.create(
 			from: ENV["TWILIO_NUMBER"],
-			to: "+1#{contact.phone}",
+			to: "+1#{self.user.phone}",
 			body: "#{greeting}\n\n#{pin_msg}"
 			)
 	end

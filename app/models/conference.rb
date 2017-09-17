@@ -46,7 +46,12 @@ class Conference < ApplicationRecord
 			errors.add(:end_time, "must be at least 10 minutes and no more than 2 hours after start time")
 		end
 		if start_time < Time.now + 600
-			errors.add(:start_time, "must begin at least 10 minutes from now")
+			errors.add(:start_time, "must be at least 10 minutes from now")
+		end
+		if self.user.expiration
+			if end_time > self.user.expiration
+				errors.add(:end_time, "must be before user account expires")
+			end
 		end
 	end
 

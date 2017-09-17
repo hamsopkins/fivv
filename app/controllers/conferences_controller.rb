@@ -13,8 +13,10 @@ class ConferencesController < ApplicationController
 		admin_pin = @conference.set_pin
 		puts "\n\nNEW CONFERENCE"
 		puts "ADMIN PIN: #{@admin_pin}\n\n"
-		@conference.conference_contacts << params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map { |id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
-		@conference.inform_admin(admin_pin)
+		if @conference.valid?
+			@conference.conference_contacts << params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map { |id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
+			@conference.inform_admin(admin_pin)
+		end
 		if @conference.save
 			redirect_to conference_url(@conference)
 		else

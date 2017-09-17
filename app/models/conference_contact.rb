@@ -85,6 +85,7 @@ class ConferenceContact < ApplicationRecord
 			to: "+1#{contact.phone}",
 			body: greeting
 			)
+		self.destroy
 	end
 
 	private

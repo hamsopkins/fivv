@@ -42,11 +42,7 @@ class ConferencesController < ApplicationController
 		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }
 		remaining_contact_ids = existing_contact_ids & updated_contact_ids
 		uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
-		uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each do |c|
-			puts "uninvited #{c.contact.name}"
-			c.inform_canceled
-			c.destroy
-		end
+		uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
 		remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
 		new_contact_ids = updated_contact_ids - remaining_contact_ids
 		@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
@@ -79,11 +75,11 @@ class ConferencesController < ApplicationController
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to :root unless helpers.current_user == @conference.user
-		@identity = helpers.current_user.name
-  	capability = Twilio::Util::Capability.new ENV['TWILIO_SID'], ENV['TWILIO_AUTH_TOKEN']
-  	capability.allow_client_outgoing(ENV['TWILIO_TWIML_APP_SID'], {'Conference' => @conference.access_code})
-  	@token = capability.generate
-  	render :show, layout: false
+		# @identity = helpers.current_user.name
+  # 	capability = Twilio::JWT::ClientCapability.new ENV['TWILIO_SID'], ENV['TWILIO_AUTH_TOKEN']
+  # 	capability.add_scope(Twilio::JWT::ClientCapability::OutgoingClientScope.new(ENV['TWILIO_TWIML_APP_SID'], {'Conference' => @conference.access_code}))
+  # 	@token = capability.generate
+  # 	render :show, layout: false
 	end
 
 	private

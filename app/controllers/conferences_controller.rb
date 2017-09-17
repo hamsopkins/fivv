@@ -37,11 +37,11 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to 'conferences#index' unless @conference
 		redirect_to 'conferences#index' unless @conference.user == helpers.current_user
-		@conference.assign_attributes(conference_params)
 		existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
-		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }
+		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
 		remaining_contact_ids = existing_contact_ids & updated_contact_ids
 		uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
+		@conference.assign_attributes(conference_params)
 		uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
 		remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
 		new_contact_ids = updated_contact_ids - remaining_contact_ids

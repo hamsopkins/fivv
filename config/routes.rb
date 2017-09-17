@@ -12,4 +12,6 @@ Rails.application.routes.draw do
   post '/select_conference', to: 'calls#select_conference'
   post '/authenticate/:id', to: 'calls#authenticate'
   post '/incoming_sms', to: 'calls#incoming_sms'
+  post '/callback', to: 'calls#callback'
+
 end

@@ -59,7 +59,33 @@ class ConferenceContact < ApplicationRecord
 			to: "+1#{contact.phone}",
 			body: "#{greeting}\n\n#{pin_msg}"
 			)
-	  puts "informed #{contact.name} of #{conference.name}"
+	end
+
+	def inform_updated_time
+		conference = self.conference
+		contact = self.contact
+    greeting = "Hi #{contact.name}, the conference #{conference.name} by #{conference.user.name} is now taking place on #{pretty_time(conference.start_time)}."
+		pin_msg = "Please note the new time. Your login credentials remain unchanged."
+		client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+		client.messages.create(
+			from: ENV["TWILIO_NUMBER"],
+			to: "+1#{contact.phone}",
+			body: "#{greeting}\n\n#{pin_msg}"
+			)
+	end
+
+	def inform_canceled
+		conference = self.conference
+		access_code = self.conference.access_code
+		contact = self.contact
+    greeting = "Hi #{contact.name}, the conference #{conference.name} by #{conference.user.name} has been canceled."
+		client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+		client.messages.create(
+			from: ENV["TWILIO_NUMBER"],
+			to: "+1#{contact.phone}",
+			body: greeting
+			)
+		self.destroy
 	end
 
 	private

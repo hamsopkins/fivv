@@ -46,11 +46,31 @@ class Conference < ApplicationRecord
 			errors.add(:end_time, "must be at least 10 minutes and no more than 2 hours after start time")
 		end
 		if start_time < Time.now + 600
-			errors.add(:start_time, "must begin at least 10 minutes from now")
+			errors.add(:start_time, "must be at least 10 minutes from now")
 		end
+		if self.user.expiration
+			if end_time > self.user.expiration
+				errors.add(:end_time, "must be before user account expires")
+			end
+		end
+	end
+
+	def inform_admin(pin)
+    greeting = "Hi #{self.user.name}, you have successfully created the conference #{self.name}. Please call this number on #{pretty_time(self.start_time)}."
+		pin_msg = "Conference code: #{self.access_code}\nAdmin PIN: #{pin}"
+		client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+		client.messages.create(
+			from: ENV["TWILIO_NUMBER"],
+			to: "+1#{self.user.phone}",
+			body: "#{greeting}\n\n#{pin_msg}"
+			)
 	end
 
 	def remove_access_code
 		self.update_attribute(:access_code, nil)
+	end
+
+	def pretty_time(time_obj)
+		time_obj.in_time_zone(self.user.time_zone).strftime('%b %d %Y at %l:%M %p %Z')
 	end
 end

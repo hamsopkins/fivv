@@ -6,31 +6,31 @@ class SessionsController < ApplicationController
 	def create
 		user = User.find_by_phone(session_params[:phone])
 		if user
-			if user.expiration
-				if Time.now > user.expiration
-					user.destroy
-					redirect_to 'sessions#account_expired'
-				end
-			end
-			if user.authenticate(session_params[:password])
-				session[:user_id] = user.id
-				user.active_user ? redirect_to 'users#show' : redirect_to 'users#success'
+			if Time.now > (user.expiration || Time.now + 604800)
+				user.destroy
+				render :account_expired
 			else
-				@errors = ["Authentication failed"]
-				render :new
+				if user.authenticate(session_params[:password])
+					session[:user_id] = user.id
+					if user.active_user
+						redirect_to user_path(user)
+					else
+						redirect_to success_path_url
+					end
+				else
+					@errors = ["Authentication failed"]
+					render :new
+				end
 			end
 		else
 			@errors = ["Authentication failed"]
+			render :new
 		end
 	end
 
 	def destroy
 		session.delete(:user_id)
 		redirect_to :root
-	end
-
-	def account_expired
-		render :account_expired
 	end
 
 	private

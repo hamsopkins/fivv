@@ -13,7 +13,7 @@ class UsersController < ApplicationController
 				body: "Fivv user request. #{user.name}#{' from ' + user.company if user.company} wants to create an account. Reply APPROVE #{user.id} to approve."
 			)
 			session[:user_id] = user.id
-			redirect_to 'users#success'
+			redirect_to success_path_url
 		else
 			@errors = user.errors.full_messages
 			render :new
@@ -22,9 +22,17 @@ class UsersController < ApplicationController
 
 	def success
 		redirect_to :root unless helpers.logged_in?
-		user = User.find(session[:user_id])
-		redirect_to 'users#show' if user.active_user
-		render :success
+		@user = User.find(session[:user_id])
+		if @user.active_user 
+			redirect_to @user
+		else
+			render :success
+		end
+	end
+
+	def show
+		redirect_to :root unless helpers.logged_in?
+		@user = User.find(session[:user_id])
 	end
 
 	private

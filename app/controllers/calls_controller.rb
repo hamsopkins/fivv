@@ -4,44 +4,49 @@ class CallsController < ApplicationController
 	after_action :set_header, except: :token
 
 	def incoming
-		response = Twilio::TwiML::Response.new do |r|
-			r.Gather(action: '/select_conference', method: 'POST', numDigits: 6, timeout: 10) do |g|
-				g.Say "Hello and welcome to Fiv. Please enter your conference code."
+		response = Twilio::TwiML::VoiceResponse.new do |r|
+			r.gather(action: '/select_conference', method: 'POST', num_digits: 6, timeout: 10) do |g|
+				g.say "Hello and welcome to Fiv. Please enter your conference code."
 			end
-			r.Say "I didn't get a response. Goodbye."
+			r.say "I didn't get a response. Goodbye."
 		end
-		render plain: response.text
+		render plain: response.to_s
 	end
 
 	def select_conference
 		conference = Conference.find_by_access_code(params['Digits'])
 		if conference
-			if conference.start_time > Time.now - 600 && Time.now < conference.end_time
-				response = Twilio::TwiML::Response.new do |r|
-					r.Gather(action: "/authenticate/#{conference.access_code}", method: 'POST', numDigits: 6, timeout: 10) do |g|
-						g.Say "Please enter your pin."
+			if (Time.now > conference.start_time - 600) && (Time.now < conference.end_time)
+				response = Twilio::TwiML::VoiceResponse.new do |r|
+					r.gather(action: "/authenticate/#{conference.access_code}", method: 'POST', num_digits: 6, timeout: 10) do |g|
+						g.say "Please enter your pin."
 					end
-					r.Say "I didn't get a response. Goodbye."
+					r.say "I didn't get a response. Goodbye."
 				end
 			else
-				response = Twilio::TwiML::Response.new { |r| r.Say "Conference is over or has not started yet. Goodbye." }
+				response = Twilio::TwiML::VoiceResponse.new { |r| r.say "Conference is over or has not started yet. Goodbye." }
 			end
 		else
-			response = Twilio::TwiML::Response.new { |r| r.Say "Conference not found. Goodbye." }
+			response = Twilio::TwiML::VoiceResponse.new { |r| r.say "Conference not found. Goodbye." }
 		end
-		render plain: response.text
+		render plain: response.to_s
 	end
 
 	def authenticate
 		conference = Conference.find_by_access_code(params[:id])
 		if conference
-			if conference.authenticate(params['Digits'])
+			if conference.authenticate(params['Digits']) && conference.admin_call_sid == nil
 				is_admin = true
 			else
 				is_admin = false
 			end
-			unless is_admin
-				conference_contact = conference.conference_contacts.find { |c| c.authenticate(params['Digits']) }
+			if is_admin
+				puts "ADMIN HERE"
+				conference.admin_call_sid = params['CallSid']
+				conference.save(validate: false)
+			else
+				puts "NOT ADMIN HERE"
+				conference_contact = conference.conference_contacts.find { |c| c.authenticate(params['Digits']) && c.call_sid == nil }
 # IMPORTANT SECURITY NOTE
 # need to add security so same user can't join conference
 # simultaneously. to accomplish this, need to add row to conference_contact
@@ -60,24 +65,44 @@ class CallsController < ApplicationController
 				else
 					start_conf = true
 				end			
-				response = Twilio::TwiML::Response.new do |r|
-					r.Dial do |d|
-						d.Conference(conference.access_code,
-							startConferenceOnEnter: start_conf,
-							maxParticipants: (conference.contacts.count + 1),
-							recordingStatusCallback: '/recording_callback',
-							statusCallback: '/callback',
-							statusCallbackEvent: 'start end join leave'
+				response = Twilio::TwiML::VoiceResponse.new do |r|
+					r.dial do |d|
+						d.conference(conference.access_code,
+							start_conference_on_enter: start_conf,
+							max_participants: (conference.contacts.count + 1),
+							status_callback: '/callback',
+							status_callback_event: 'leave'
 						)
 					end
 				end
 			else
-				response = Twilio::TwiML::Response.new { |r| r.Say "Invalid pin. Goodbye." }		
+				response = Twilio::TwiML::VoiceResponse.new { |r| r.say "Invalid pin. Goodbye." }		
 			end
 		else
-			response = Twilio::TwiML::Response.new { |r| r.Say "Something weird happened. Goodbye." }
+			response = Twilio::TwiML::VoiceResponse.new { |r| r.say "Something weird happened. Goodbye." }
 		end
-		render plain: response.text
+		render plain: response.to_s
+	end
+
+	def callback
+		puts "\n\nCALLBACK"
+		puts params
+		puts "\n\n"
+		conference = Conference.find_by_access_code(params['FriendlyName'])
+		if conference.admin_call_sid == params['CallSid']
+			conference.admin_call_sid = nil
+			conference.save(validate: false)
+		else
+			participant = ConferenceContact.find_by_call_sid(params['CallSid'])
+			participant.call_sid = nil
+			participant.save
+		end
+		render body: nil, status: 204
+	# there will be a callback when a conference first starts that will contain its SID - this will need to be saved to the DB to link with later recordings when they are made available by twilio
+	# code in this method will need to deal with any callbacks when users join or leave a conference
+	# this will need to find the conf_contact by callsid and log appropriately in the conf_actions table
+	# when conference ends, delete access_code from conference
+
 	end
 
 	def incoming_sms

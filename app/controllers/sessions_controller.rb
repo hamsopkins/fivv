@@ -1,6 +1,7 @@
 class SessionsController < ApplicationController
 	def new
-		user = User.new unless user
+		redirect_to helpers.current_user if helpers.logged_in?
+		@user = User.new unless @user
 	end
 
 	def create

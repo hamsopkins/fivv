@@ -11,14 +11,12 @@ class ConferencesController < ApplicationController
 		@conference.user = helpers.current_user
 		@conference.access_code = rand.to_s[2..7]
 		admin_pin = @conference.set_pin
-		puts "\n\nNEW CONFERENCE"
-		puts "ADMIN PIN: #{@admin_pin}\n\n"
 		if @conference.valid?
 			@conference.conference_contacts << params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map { |id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
 			@conference.inform_admin(admin_pin)
 		end
 		if @conference.save
-			redirect_to conference_url(@conference)
+			redirect_to @conference
 		else
 			@errors = @conference.errors.full_messages
 			render :new
@@ -29,16 +27,16 @@ class ConferencesController < ApplicationController
 	def edit
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
-		redirect_to 'conferences#index' unless @conference
-		redirect_to 'conferences#index' unless @conference.user == helpers.current_user
+		redirect_to conferences_path unless @conference
+		redirect_to conferences_path unless @conference.user == helpers.current_user
 		render :edit
 	end
 
 	def update
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
-		redirect_to 'conferences#index' unless @conference
-		redirect_to 'conferences#index' unless @conference.user == helpers.current_user
+		redirect_to conferences_path unless @conference
+		redirect_to conferences_path unless @conference.user == helpers.current_user
 		existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
 		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
 		remaining_contact_ids = existing_contact_ids & updated_contact_ids
@@ -59,17 +57,17 @@ class ConferencesController < ApplicationController
 	def destroy
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
-		redirect_to 'conferences#index' unless @conference
-		redirect_to 'conferences#index' unless @conference.user == helpers.current_user
+		redirect_to conferences_path unless @conference
+		redirect_to conferences_path unless @conference.user == helpers.current_user
 		@conference.conference_contacts.each { |contact| contact.inform_canceled }
 		@conference.destroy
-		redirect_to 'conferences#index'
+		redirect_to conferences_path
 	end
 
 	def index
 		redirect_to :root unless helpers.logged_in?
 		@user = helpers.current_user
-		@conferences = Conference.where("user_id = ? and start_time > ?", @user.id, (Time.now - 7200)).order(:start_time)
+		@conferences = Conference.where("user_id = ? and end_time > ?", @user.id, Time.now).order(:start_time)
 		render :index
 	end
 

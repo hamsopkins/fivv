@@ -49,16 +49,16 @@ class ContactsController < ApplicationController
 				render :edit
 			end
 		else
-			redirect_to 'contacts#index'
+			redirect_to contacts_path
 		end
 	end
 
 	def destroy
 		redirect_to :root unless helpers.logged_in?
 		@contact = Contact.find_by_id(params[:id])
-		redirect_to 'contacts#index' unless @contact
+		redirect_to contacts_path unless @contact
 		@contact.destroy if @contact.user == helpers.current_user
-		redirect_to 'contacts#index'
+		redirect_to contacts_path
 	end
 
 

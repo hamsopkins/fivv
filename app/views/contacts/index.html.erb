@@ -1,13 +1,22 @@
 <h1>Your Contacts</h1>
-<% if @contacts %>
+<div>
+	<%= link_to("New Contact", new_contact_path, class: "btn btn-success") %>
+</div>
+<% if @contacts.any? %>
 	<% @contacts.each do |contact| %>
-		<div>
-			<h2><%= link_to(contact.name, @contact) %></h2>
-			<span>Phone: <%= contact.phone %></span>
-			<span><%= link_to("Delete", contact, method: "delete") %> | <%= link_to("Edit", edit_contact_path(contact)) %></span>
+		<div class="panel panel-info">
+  		<div class="panel-heading">
+    		<h3 class="panel-title"><%= link_to(contact.name, contact) %></h3>
+  		</div>
+  		<div class="panel-body">
+				<p>Number: <%= number_to_phone(contact.phone) %></p>
+				<p>Time zone: <%= contact.time_zone %></p>
+				<span><%= link_to("Delete", contact, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_contact_path(contact), class: "btn btn-info btn-sm") %></span>
+  		</div>
 		</div>
 	<% end %>
 <% else %>
-	<div>You don't have any contacts yet!</div>
+<div class="alert alert-dismissible alert-info">
+  You don't have any contacts yet!
+</div>
 <% end %>
-<%= link_to("New Contact", new_contact_path) %>

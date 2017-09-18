@@ -31,7 +31,6 @@ class UsersController < ApplicationController
 	end
 
 	def show
-		redirect_to :root unless helpers.logged_in?
 		@user = User.find(session[:user_id])
 	end
 

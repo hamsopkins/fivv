@@ -1,1 +1,21 @@
-<h1>Nothing here yet</h1>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title"><%= @conference.name %></h3>
+  </div>
+  <div class="panel-body">
+		<p><%= @conference.start_time.strftime('%b %d, %Y from %l:%M %p') %> to <%= @conference.end_time.strftime('%l:%M %p %Z') %></p>
+		<% if @conference.conference_contacts.any? %>
+			<p>Participants</p>
+			<ul>
+				<% @conference.conference_contacts.each do |c| %>
+					<li><%= c.contact.name %></li>
+				<% end %>
+			</ul>
+		<% else %>
+			<div class="alert alert-dismissible alert-warning">
+	  		No participants have been added to this conference!
+			</div>
+		<% end %>
+		<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<h1>Your Upcoming Conferences</h1>
+<div>
+	<%= link_to("New Conference", new_conference_path, class: "btn btn-success") %>
+</div>
+<% if @conferences.any? %>
+	<% @conferences.each do |conference| %>
+		<div class="panel panel-info">
+  		<div class="panel-heading">
+    		<h3 class="panel-title"><%= link_to(conference.name, conference) %></h3>
+  		</div>
+  		<div class="panel-body">
+				<p><%= conference.start_time.strftime('%b %d, %Y from %l:%M %p') %> to <%= conference.end_time.strftime('%l:%M %p %Z') %></p>
+				<p><%= conference.conference_contacts.count %> participants</p>
+				<span><%= link_to("Delete", conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(conference), class: "btn btn-info btn-sm") %></span>
+  		</div>
+		</div>
+	<% end %>
+<% else %>
+<div class="alert alert-dismissible alert-info">
+  You have no upcoming conferences!
+</div>
+<% end %>

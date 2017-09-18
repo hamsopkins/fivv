@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
 		if user
 			if Time.now > (user.expiration || Time.now + 604800)
 				user.destroy
-				render :account_expired
+				redirect_to account_expired_url
 			else
 				if user.authenticate(session_params[:password])
 					session[:user_id] = user.id
@@ -27,6 +27,9 @@ class SessionsController < ApplicationController
 			@errors = ["Authentication failed"]
 			render :new
 		end
+	end
+
+	def account_expired
 	end
 
 	def destroy

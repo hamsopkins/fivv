@@ -14,5 +14,6 @@ Rails.application.routes.draw do
   post '/authenticate/:id', to: 'calls#authenticate'
   post '/incoming_sms', to: 'calls#incoming_sms'
   post '/callback', to: 'calls#callback'
+  get '/expired', to: 'sessions#account_expired', as: :account_expired
 
 end

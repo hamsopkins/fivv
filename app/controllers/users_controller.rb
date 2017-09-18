@@ -31,7 +31,13 @@ class UsersController < ApplicationController
 	end
 
 	def show
+		redirect_to :root unless helpers.logged_in?
 		@user = User.find(session[:user_id])
+		if Time.now > (@user.expiration || Time.now + 604800)
+			@user.destroy
+			session.delete(:user_id)
+			redirect_to account_expired_url
+		end
 	end
 
 	private

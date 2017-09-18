@@ -1,4 +1,6 @@
 class ContactsController < ApplicationController
+	before_action :destroy_expired_account
+
 	def index
 		if helpers.logged_in?
 			user = helpers.current_user
@@ -65,5 +67,15 @@ class ContactsController < ApplicationController
 	private
 	def contact_params
 		params.require(:contact).permit :name, :phone, :time_zone
+	end
+
+	def destroy_expired_account
+		if helpers.logged_in?
+			if Time.now > (helpers.current_user.expiration || Time.now + 604800)
+				helpers.current_user.destroy
+				session.delete(:user_id)
+				redirect_to account_expired_url
+			end
+		end
 	end
 end

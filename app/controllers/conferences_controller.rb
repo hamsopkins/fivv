@@ -1,4 +1,5 @@
 class ConferencesController < ApplicationController
+	before_action :destroy_expired_account
 	around_action :user_time_zone, only: [:edit, :show, :index, :create, :update]
 
 	def new
@@ -37,15 +38,17 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
-		existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
-		updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
-		remaining_contact_ids = existing_contact_ids & updated_contact_ids
-		uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
 		@conference.assign_attributes(conference_params)
-		uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
-		remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
-		new_contact_ids = updated_contact_ids - remaining_contact_ids
-		@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
+		if @conference.valid?
+			existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
+			updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
+			remaining_contact_ids = existing_contact_ids & updated_contact_ids
+			uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
+			uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
+			remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
+			new_contact_ids = updated_contact_ids - remaining_contact_ids
+			@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
+		end
 		if @conference.save
 			redirect_to @conference
 		else
@@ -89,6 +92,16 @@ class ConferencesController < ApplicationController
 
 	def user_time_zone
 	  Time.use_zone(helpers.current_user.time_zone) { yield }
+	end
+
+	def destroy_expired_account
+		if helpers.logged_in?
+			if Time.now > (helpers.current_user.expiration || Time.now + 604800)
+				helpers.current_user.destroy
+				session.delete(:user_id)
+				redirect_to account_expired_url
+			end
+		end
 	end
 
 end

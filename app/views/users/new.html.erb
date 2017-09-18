@@ -24,7 +24,7 @@
 		<div class="form-group">
 			<%= f.label(:phone, "Mobile number (digits only)", class: "col-lg-2 control-label") %>
 			<div class="col-lg-10">
-				<%= f.telephone_field(:phone, class: "form-control") %>
+				<%= f.telephone_field(:phone, class: "form-control", maxlength: 10) %>
 			</div>
 		</div>
 		<div class="form-group">

@@ -109,7 +109,7 @@ class CallsController < ApplicationController
 		if params['From'] == ENV["CONFIRMATION_NUMBER"] && params['Body'].downcase.start_with?("approve")
 			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
 			user_id = params['Body'].split(' ').last.to_i
-			user = User.find(user_id)
+			user = User.find_by_id(user_id)
 			if user
 				user.active_user = true
 				user.expiration = Time.now + 604800

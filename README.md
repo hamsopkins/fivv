@@ -1,5 +1,7 @@
 # Fivv
-a twilio- and rails-powered voice conference scheduling and management system
+A twilio- and rails-powered voice conference scheduling and management system
+
+[A trial demo](http://fivv.samhopkins.tech/) is available to test out. Trial accounts remain active for one week after admin approval.
 
 ## Configuration
 The following environment variables need to be set in order to run Fivv:

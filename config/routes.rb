@@ -1,9 +1,10 @@
 Rails.application.routes.draw do
   root 'sessions#new'
 
-  resources :users, :contacts, :conferences
+  resources :users, only: [:show, :new, :create]
+  resources :contacts, :conferences
   
-  get '/login', to: 'sessions#new'
+  get '/login', to: 'sessions#new', as: :login_form_path
   delete '/sessions', to: 'sessions#destroy', as: :logout_path
   post '/sessions', to: 'sessions#create', as: :login_path
   get '/success', to: 'users#success', as: :success_path

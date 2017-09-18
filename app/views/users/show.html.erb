@@ -1,2 +1,8 @@
-<h1>You've landed!</h1>
-<h2><%= distance_of_time_in_words(Time.now, @user.expiration) %> remaining before your trial account expires!</h2>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Hi, <%= @user.name %>!</h3>
+  </div>
+  <div class="panel-body">
+  	<p><%= distance_of_time_in_words(Time.now, @user.expiration) %> remaining before your trial account expires!</p>
+  </div>
+</div>

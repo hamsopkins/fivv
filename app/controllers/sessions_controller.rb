@@ -37,6 +37,69 @@ class SessionsController < ApplicationController
 		redirect_to :root
 	end
 
+	def forgot_password
+		redirect_to :root if helpers.logged_in?
+	end
+
+	def generate_token
+		redirect_to :root if helpers.logged_in?
+		@user = User.find_by_phone(params['token']['phone'])
+		if @user
+			RecoveryToken.where("user_id = ?", @user.id).destroy_all
+			token = RecoveryToken.new(user: @user, token: rand.to_s[2..7])
+			if token.save
+				client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+				client.messages.create(
+					from: ENV["TWILIO_NUMBER"],
+					to: "+1#{@user.phone}",
+					body: "Your Fivv recovery token: #{token.token}"
+				)
+				redirect_to reset_password_form_path_url
+			else
+				@errors = ["Token could not be generated."]
+				render :forgot_password
+			end
+		else
+			@errors = ["User not found."]
+			render :forgot_password
+		end
+	end
+
+	def reset_password_form
+		redirect_to :root if helpers.logged_in?
+	end
+
+	def reset_password
+		redirect_to :root if helpers.logged_in?
+		@user = User.find_by_phone(params['token']['phone'])
+		if @user
+			token = RecoveryToken.where("user_id = ? and token = ?", @user.id, params['token']['token']).first
+			if token
+				if token.created_at > Time.now - 600
+					@user.assign_attributes(password: params['token']['password'], password_confirmation: params['token']['password_confirmation'])
+					if @user.save
+						token.destroy
+						session[:user_id] = @user.id
+						redirect_to @user
+					else
+						@errors = @user.errors.full_messages
+						render :reset_password_form
+					end
+				else
+					token.destroy
+					@errors = ["Invalid token."]
+					render :reset_password_form
+				end
+			else
+				@errors = ["Invalid token."]
+				render :reset_password_form
+			end
+		else
+			@errors = ["User not found."]
+			render :reset_password_form
+		end
+	end
+
 	private
 	def session_params
 		params.require(:session).permit :phone, :password

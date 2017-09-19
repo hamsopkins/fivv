@@ -15,5 +15,9 @@ Rails.application.routes.draw do
   post '/incoming_sms', to: 'calls#incoming_sms'
   post '/callback', to: 'calls#callback'
   get '/expired', to: 'sessions#account_expired', as: :account_expired
+  get '/forgot_password', to: 'sessions#forgot_password', as: :forgot_password_path
+  post '/generate_token', to: 'sessions#generate_token', as: :generate_token_path
+  get '/reset_password', to: 'sessions#reset_password_form', as: :reset_password_form_path
+  post '/reset_password', to: 'sessions#reset_password', as: :reset_password_path
 
 end

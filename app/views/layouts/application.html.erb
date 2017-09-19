@@ -21,6 +21,7 @@
         <li><%= link_to("Conferences", conferences_path) %></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <li><%= link_to("Settings", edit_user_path(current_user)) %></li>
         <li><%= link_to("Log out", logout_path_url, method: "delete") %></li>
       </ul>
     </div>

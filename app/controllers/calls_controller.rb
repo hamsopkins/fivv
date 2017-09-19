@@ -40,22 +40,12 @@ class CallsController < ApplicationController
 			else
 				is_admin = false
 			end
+			conference_contact = nil
 			if is_admin
-				puts "ADMIN HERE"
 				conference.admin_call_sid = params['CallSid']
 				conference.save(validate: false)
 			else
-				puts "NOT ADMIN HERE"
 				conference_contact = conference.conference_contacts.find { |c| c.authenticate(params['Digits']) && c.call_sid == nil }
-# IMPORTANT SECURITY NOTE
-# need to add security so same user can't join conference
-# simultaneously. to accomplish this, need to add row to conference_contact
-# and conference table (the latter table for admin) to specify if that user
-# is active in the conference. will need to add callback method
-# in a controller to mark user inactive when leaving conference
-# in case user is disconnected and needs to reconnect
-# or simply add a callback to remove call_sid when a user disconnects
-# but in this instance security for admin user still needs to be addressed
 				conference_contact.call_sid = params['CallSid']
 				conference_contact.save
 			end
@@ -85,9 +75,6 @@ class CallsController < ApplicationController
 	end
 
 	def callback
-		puts "\n\nCALLBACK"
-		puts params
-		puts "\n\n"
 		conference = Conference.find_by_access_code(params['FriendlyName'])
 		if conference.admin_call_sid == params['CallSid']
 			conference.admin_call_sid = nil
@@ -98,11 +85,6 @@ class CallsController < ApplicationController
 			participant.save
 		end
 		render body: nil, status: 204
-	# there will be a callback when a conference first starts that will contain its SID - this will need to be saved to the DB to link with later recordings when they are made available by twilio
-	# code in this method will need to deal with any callbacks when users join or leave a conference
-	# this will need to find the conf_contact by callsid and log appropriately in the conf_actions table
-	# when conference ends, delete access_code from conference
-
 	end
 
 	def incoming_sms

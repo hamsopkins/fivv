@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root 'sessions#new'
 
-  resources :users, only: [:show, :new, :create]
+  resources :users, only: [:show, :new, :create, :edit, :update]
   resources :contacts, :conferences
   
   get '/login', to: 'sessions#new', as: :login_form_path

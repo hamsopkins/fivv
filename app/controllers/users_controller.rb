@@ -20,6 +20,28 @@ class UsersController < ApplicationController
 		end
 	end
 
+	def edit
+		redirect_to :root unless helpers.logged_in?
+		@user = helpers.current_user
+	end
+
+	def update
+		redirect_to :root unless helpers.logged_in?
+		@user = helpers.current_user
+		if @user.authenticate(params['user']['old_password'])
+			@user.assign_attributes(user_params)
+			if @user.save
+				redirect_to @user
+			else
+				@errors = @user.errors.full_messages
+				render :edit
+			end
+		else
+			@errors = ["Your current password is required to update account settings"]
+			render :edit
+		end
+	end
+
 	def success
 		redirect_to :root unless helpers.logged_in?
 		@user = User.find(session[:user_id])
@@ -45,4 +67,7 @@ class UsersController < ApplicationController
 		params.require(:user).permit :name, :phone, :company, :password, :password_confirmation, :time_zone
 	end
 
+	# def update_user_params
+	# 	params.require(:user).permit :name, :phone, :company, :password, :password_confirmation, :time_zone
+	# end
 end

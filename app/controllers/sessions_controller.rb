@@ -76,13 +76,18 @@ class SessionsController < ApplicationController
 			token = RecoveryToken.where("user_id = ? and token = ?", @user.id, params['token']['token']).first
 			if token
 				if token.created_at > Time.now - 600
-					@user.assign_attributes(password: params['token']['password'], password_confirmation: params['token']['password_confirmation'])
-					if @user.save
-						token.destroy
-						session[:user_id] = @user.id
-						redirect_to @user
+					if params['token']['password'].length > 0
+						@user.assign_attributes(password: params['token']['password'], password_confirmation: params['token']['password_confirmation'])
+						if @user.save
+							token.destroy
+							session[:user_id] = @user.id
+							redirect_to @user
+						else
+							@errors = @user.errors.full_messages
+							render :reset_password_form
+						end
 					else
-						@errors = @user.errors.full_messages
+						@errors = ["New password cannot be empty."]
 						render :reset_password_form
 					end
 				else

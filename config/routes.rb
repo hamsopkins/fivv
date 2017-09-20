@@ -19,5 +19,5 @@ Rails.application.routes.draw do
   post '/generate_token', to: 'sessions#generate_token', as: :generate_token_path
   get '/reset_password', to: 'sessions#reset_password_form', as: :reset_password_form_path
   post '/reset_password', to: 'sessions#reset_password', as: :reset_password_path
-
+  post '/client_join', to: 'calls#client_join'
 end

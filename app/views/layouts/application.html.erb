@@ -6,54 +6,55 @@
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag "http://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js" if @token %>
   </head>
 
   <body>
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-  <% if logged_in? %>
-    <div class="navbar-header">
-      <%= link_to("Fivv", current_user, class: "navbar-brand") %>
-    </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><%= link_to("Contacts", contacts_path) %></li>
-        <li><%= link_to("Conferences", conferences_path) %></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><%= link_to("Settings", edit_user_path(current_user)) %></li>
-        <li><%= link_to("Log out", logout_path_url, method: "delete") %></li>
-      </ul>
-    </div>
-  <% else %>
-    <div class="navbar-header">
-      <%= link_to("Fivv", root_path, class: "navbar-brand") %>
-    </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><%= link_to("Register", new_user_path) %></li>
-        <li><%= link_to("Login", login_form_path_url) %></li>
-      </ul>
-    </div>
-  <% end %>
-  </div>
-</nav>
-
-  <div>
-    <% if @errors %>
-      <div class="panel panel-danger">
-        <div class="panel-heading">
-          <h3 class="panel-title">Errors</h3>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+      <% if logged_in? %>
+        <div class="navbar-header">
+          <%= link_to("Fivv", current_user, class: "navbar-brand") %>
         </div>
-        <div class="panel-body">
-          <ul>
-            <% @errors.each do |error| %>
-              <li><%= error %></li>
-            <% end %>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><%= link_to("Contacts", contacts_path) %></li>
+            <li><%= link_to("Conferences", conferences_path) %></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><%= link_to("Settings", edit_user_path(current_user)) %></li>
+            <li><%= link_to("Log out", logout_path_url, method: "delete") %></li>
           </ul>
         </div>
+      <% else %>
+        <div class="navbar-header">
+          <%= link_to("Fivv", root_path, class: "navbar-brand") %>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><%= link_to("Register", new_user_path) %></li>
+            <li><%= link_to("Login", login_form_path_url) %></li>
+          </ul>
+        </div>
+      <% end %>
       </div>
-    <% end %>
-    <%= yield %>
+    </nav>
+    <main>
+      <% if @errors %>
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">Errors</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <% @errors.each do |error| %>
+                <li><%= error %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+      <%= yield %>
+    </main>
   </body>
 </html>

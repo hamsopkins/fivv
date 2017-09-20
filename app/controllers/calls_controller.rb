@@ -87,6 +87,24 @@ class CallsController < ApplicationController
 		render body: nil, status: 204
 	end
 
+	def client_join
+	  conference = Conference.find_by_access_code(params['Conference'])
+	  conference.admin_call_sid = params['CallSid']
+	  conference.save(validate: false)
+	  response = Twilio::TwiML::VoiceResponse.new do |r|
+	    r.dial do |d|
+	    	d.conference(conference.access_code,
+	    		start_conference_on_enter: true,
+					max_participants: (conference.contacts.count + 1),
+					muted: false,
+					status_callback: '/callback',
+					status_callback_event: 'leave'
+					)
+	    end
+	  end
+	  render plain: response.to_s
+	end
+
 	def incoming_sms
 		if params['From'] == ENV["CONFIRMATION_NUMBER"] && params['Body'].downcase.start_with?("approve")
 			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]

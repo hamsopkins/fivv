@@ -78,11 +78,11 @@ class ConferencesController < ApplicationController
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to :root unless helpers.current_user == @conference.user
-		# @identity = helpers.current_user.name
-  # 	capability = Twilio::JWT::ClientCapability.new ENV['TWILIO_SID'], ENV['TWILIO_AUTH_TOKEN']
-  # 	capability.add_scope(Twilio::JWT::ClientCapability::OutgoingClientScope.new(ENV['TWILIO_TWIML_APP_SID'], {'Conference' => @conference.access_code}))
-  # 	@token = capability.generate
-  # 	render :show, layout: false
+		if Time.now > @conference.start_time - 300 && Time.now < @conference.end_time
+	  	capability = Twilio::JWT::ClientCapability.new ENV['TWILIO_SID'], ENV['TWILIO_AUTH_TOKEN']
+	  	capability.add_scope(Twilio::JWT::ClientCapability::OutgoingClientScope.new(ENV['TWILIO_TWIML_APP_SID'], nil, {'Conference' => @conference.access_code}))
+	  	@token = capability.to_jwt
+	  end
 	end
 
 	private

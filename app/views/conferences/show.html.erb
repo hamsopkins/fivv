@@ -1,3 +1,16 @@
+<% if @token %>
+  <div id="call-controls" style="display: none;">
+		<button class="btn btn-success" id="button-call">Join conference</button>
+	  <button class="btn btn-danger" id="button-hangup" style="display: none;">Leave conference</button>
+	</div>
+	<div class="panel panel-success" style="height: 9em;">
+	  <div class="panel-heading">
+	    <h3 class="panel-title">Fivv Client</h3>
+	  </div>
+	  <div class="panel-body" id="log" style="overflow-y: scroll; height: 6em;">
+	  </div>
+	</div>
+<% end %>
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title"><%= @conference.name %></h3>
@@ -19,3 +32,10 @@
 		<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
   </div>
 </div>
+<% if @token %>
+  <%= javascript_include_tag "http://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js" %>
+	<%= javascript_tag do %>
+  	var token = '<%= @token %>';
+	<% end %>
+  <%= javascript_include_tag 'client' %>
+<% end %>

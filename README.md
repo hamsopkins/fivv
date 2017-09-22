@@ -9,7 +9,7 @@ For added security, Fivv will not allow the same login credentials to be used si
 
 Fivv is currently configured to accept only North American phone numbers, but can easily be reconfigured to work with phone numbers in any country supported by Twilio.
 
-[A trial demo](http://fivv.samhopkins.tech/) is available to test out. Trial accounts remain active for one week after admin approval.
+[A trial demo](http://fivv.samhopkins.tech/) is available to test out. Trial accounts remain active for one week after admin approval, and conferences are limited to ten participants.
 
 ## Configuration
 The following environment variables need to be set in order to run Fivv:

@@ -17,8 +17,18 @@ The following environment variables need to be set in order to run Fivv:
   * **TWILIO_AUTH_TOKEN** - your Twilio auth token
   * **CONFIRMATION_NUMBER** - the administrator's mobile number - requests to confirm new trial accounts will be sent to this number
   * **TWILIO_NUMBER** - the Twilio phone number to use for the app
-  * **TWILIO_TWIML_APP_SID** - Twilio app SID for web client
+  * **TWILIO_TWIML_APP_SID** - Twilio TwiML app SID for web client
   
 The following environment variable is optional:
   * **MAX_PARTICIPANTS** - specify a maximum number of participants for new conferences
+
+Additionally, you will need to set up an account with Twilio, purchase a US or Canadian phone number, and set up one TwiML application in your Twilio console in order to run the application.
+
+On the configuration page for your phone number, be sure the number is set to accept voice calls (rather than faxes). Incoming calls should be configured to send a post request to the /incoming route of the server your app is deployed to. Incoming text messages should be configured to send a post request to the /incoming_sms route of your server. Please see the image below as a guide.
+
+![Twilio phone number configuration example](readme_assets/twilio_setup1.jpg)
+
+On the configuration page for your TwiML app, be sure that incoming voice requests are set to send a post request to the /client_join route of your server. See the image below for an example.
+
+![Twilio TwiML app configuration example](readme_assets/twilio_setup2.jpg)
   

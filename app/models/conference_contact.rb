@@ -65,7 +65,7 @@ class ConferenceContact < ApplicationRecord
 		conference = self.conference
 		contact = self.contact
     greeting = "Hi #{contact.name}, the conference #{conference.name} by #{conference.user.name} is now taking place on #{pretty_time(conference.start_time)}."
-		pin_msg = "Please note the new time. Your login credentials remain unchanged."
+		pin_msg = "Please note the updated details. Your login credentials remain unchanged."
 		client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
 		client.messages.create(
 			from: ENV["TWILIO_NUMBER"],

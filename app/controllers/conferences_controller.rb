@@ -38,7 +38,7 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
-		@conference.assign_attributes(conference_params)
+		@conference.assign_attributes(update_conference_params)
 		if @conference.valid?
 			existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
 			updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
@@ -88,6 +88,10 @@ class ConferencesController < ApplicationController
 	private
 	def conference_params
 		params.require(:conference).permit :name, :start_time, :end_time, :contacts, :moderated
+	end
+
+	def update_conference_params
+		params.require(:conference).permit :start_time, :end_time, :contacts, :moderated
 	end
 
 	def user_time_zone

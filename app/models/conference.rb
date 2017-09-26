@@ -9,7 +9,12 @@ class Conference < ApplicationRecord
 														 message: "is too long or too short"}
 	has_many :conference_contacts
 	has_many :contacts, through: :conference_contacts
+	validate :exceeds_max_per_user?
 	validate :exceeds_max_participants?
+
+	def exceeds_max_per_user?
+		errors.add(:base, "exceeds maximum number of conferences allowed in demo mode") if self.user.conferences.count >= 5
+	end
 
 	def exceeds_max_participants?
 		max_participants = 250
@@ -42,8 +47,8 @@ class Conference < ApplicationRecord
 	end
 
 	def are_times_logical
-		if end_time - start_time < 600 || end_time - start_time > 7200
-			errors.add(:end_time, "must be at least 10 minutes and no more than 2 hours after start time")
+		if end_time - start_time < 300 || end_time - start_time > 900
+			errors.add(:end_time, "must be at least 5 minutes and no more than 15 minutes after start time")
 		end
 		if start_time < Time.now + 600
 			errors.add(:start_time, "must be at least 10 minutes from now")

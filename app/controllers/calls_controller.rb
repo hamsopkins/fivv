@@ -106,38 +106,37 @@ class CallsController < ApplicationController
 	end
 
 	def incoming_sms
-		if params['From'] == ENV["CONFIRMATION_NUMBER"] && params['Body'].downcase.start_with?("approve")
-			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
-			user_id = params['Body'].split(' ').last.to_i
-			user = User.find_by_id(user_id)
-			if user
-				user.active_user = true
-				user.expiration = Time.now + 604800
-				if user.save
-					client.messages.create(
-						from: ENV["TWILIO_NUMBER"],
-						to: ENV["CONFIRMATION_NUMBER"],
-						body: "User #{user.name}#{' from ' + user.company if user.company.length > 0} has been approved."
-					)
-					client.messages.create(
-						from: ENV["TWILIO_NUMBER"],
-						to: "+1#{user.phone}",
-						body: "Hello from Fivv! Your trial account is now active. Go ahead - log in and try it out! Your account will expire in seven days."
-					)
-				else
-					client.messages.create(
-						from: ENV["TWILIO_NUMBER"],
-						to: ENV["CONFIRMATION_NUMBER"],
-						body: "ERROR! User #{user.name}#{' from ' + user.company if user.company.length > 0} can't be approved."
-					)
-				end
-			else
-				client.messages.create(
-					from: ENV["TWILIO_NUMBER"],
-					to: ENV["CONFIRMATION_NUMBER"],
-					body: "ERROR! User not found."
-				)
-			end
-		end
+		# if params['From'] == ENV["CONFIRMATION_NUMBER"] && params['Body'].downcase.start_with?("approve")
+		# 	client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
+		# 	user_id = params['Body'].split(' ').last.to_i
+		# 	user = User.find_by_id(user_id)
+		# 	if user
+		# 		user.expiration = Time.now + 172800
+		# 		if user.save
+		# 			client.messages.create(
+		# 				from: ENV["TWILIO_NUMBER"],
+		# 				to: ENV["CONFIRMATION_NUMBER"],
+		# 				body: "User #{user.name}#{' from ' + user.company if user.company.length > 0} has been approved."
+		# 			)
+		# 			client.messages.create(
+		# 				from: ENV["TWILIO_NUMBER"],
+		# 				to: "+1#{user.phone}",
+		# 				body: "Hello from Fivv! Your trial account is now active. Go ahead - log in and try it out! Your account will expire in 48 hours."
+		# 			)
+		# 		else
+		# 			client.messages.create(
+		# 				from: ENV["TWILIO_NUMBER"],
+		# 				to: ENV["CONFIRMATION_NUMBER"],
+		# 				body: "ERROR! User #{user.name}#{' from ' + user.company if user.company.length > 0} can't be approved."
+		# 			)
+		# 		end
+		# 	else
+		# 		client.messages.create(
+		# 			from: ENV["TWILIO_NUMBER"],
+		# 			to: ENV["CONFIRMATION_NUMBER"],
+		# 			body: "ERROR! User not found."
+		# 		)
+		# 	end
+		# end
 	end
 end

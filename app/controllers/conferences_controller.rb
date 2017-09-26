@@ -1,5 +1,5 @@
 class ConferencesController < ApplicationController
-	before_action :destroy_expired_account
+	before_action :redirect_expired_account
 	around_action :user_time_zone, only: [:edit, :show, :index, :create, :update]
 
 	def new
@@ -95,13 +95,12 @@ class ConferencesController < ApplicationController
 	end
 
 	def user_time_zone
-	  Time.use_zone(helpers.current_user.time_zone) { yield }
+	  Time.use_zone(helpers.current_user.time_zone) { yield } if helpers.logged_in?
 	end
 
-	def destroy_expired_account
+	def redirect_expired_account
 		if helpers.logged_in?
 			if Time.now > (helpers.current_user.expiration || Time.now + 604800)
-				helpers.current_user.destroy
 				session.delete(:user_id)
 				redirect_to account_expired_url
 			end

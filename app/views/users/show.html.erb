@@ -3,6 +3,6 @@
     <h3 class="panel-title">Hi, <%= @user.name %>!</h3>
   </div>
   <div class="panel-body">
-  	<p><%= distance_of_time_in_words(Time.now, @user.expiration) %> remaining before your trial account expires!</p>
+  	<p><%= distance_of_time_in_words(Time.now, @user.expiration).capitalize %> remaining before your trial account expires!</p>
   </div>
 </div>

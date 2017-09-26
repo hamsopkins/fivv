@@ -5,12 +5,13 @@ class UsersController < ApplicationController
 
 	def create
 		user = User.new(user_params) unless user
+		user.expiration = Time.now + 172800
 		if user.save
 			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
 			client.messages.create(
 				from: ENV["TWILIO_NUMBER"],
 				to: ENV["CONFIRMATION_NUMBER"],
-				body: "Fivv user request. #{user.name}#{' from ' + user.company if user.company} wants to create an account. Reply APPROVE #{user.id} to approve."
+				body: "New Fivv user: #{user.name}#{' from ' + user.company if user.company.length > 0}."
 			)
 			session[:user_id] = user.id
 			redirect_to success_path_url
@@ -28,7 +29,7 @@ class UsersController < ApplicationController
 	def update
 		redirect_to :root unless helpers.logged_in?
 		@user = helpers.current_user
-		if @user.authenticate(params['user']['old_password'])
+		if @user.authenticate(params['user']['old_password']) && Time.now < @user.expiration
 			@user.assign_attributes(user_params)
 			if @user.save
 				redirect_to @user
@@ -45,8 +46,9 @@ class UsersController < ApplicationController
 	def success
 		redirect_to :root unless helpers.logged_in?
 		@user = User.find(session[:user_id])
-		if @user.active_user 
-			redirect_to @user
+		if Time.now > @user.expiration
+			session.delete(:user_id) 
+			redirect_to account_expired_url
 		else
 			render :success
 		end
@@ -56,7 +58,6 @@ class UsersController < ApplicationController
 		redirect_to :root unless helpers.logged_in?
 		@user = User.find(session[:user_id])
 		if Time.now > (@user.expiration || Time.now + 604800)
-			@user.destroy
 			session.delete(:user_id)
 			redirect_to account_expired_url
 		end

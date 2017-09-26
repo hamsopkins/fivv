@@ -3,6 +3,6 @@
     <h3 class="panel-title">Congratulations, <%= @user.name %>!</h3>
   </div>
   <div class="panel-body">
-		<p>You've successfully registered for Fivv. This web app is currently in demo mode, meaning all accounts require administrator approval, and accounts will remain active for seven days after approval. You will receive a text message when your account has been approved.</p>
+		<p>You've successfully registered for Fivv. This web app is currently in demo mode, meaning all accounts expire 48 hours after creation. You will be limited to scheduling up to five conferences no longer than 15 minutes in duration with up to ten participants each. <%= link_to("Get started!", @user) %></p>
   </div>
 </div>

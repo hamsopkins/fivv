@@ -5,6 +5,7 @@ class UsersController < ApplicationController
 
 	def create
 		user = User.new(user_params) unless user
+		user.phone = user.phone.scan(/\d/).join
 		user.expiration = Time.now + 172800
 		if user.save
 			client = Twilio::REST::Client.new ENV["TWILIO_SID"], ENV["TWILIO_AUTH_TOKEN"]
@@ -30,7 +31,7 @@ class UsersController < ApplicationController
 		redirect_to :root unless helpers.logged_in?
 		@user = helpers.current_user
 		if @user.authenticate(params['user']['old_password']) && Time.now < @user.expiration
-			@user.assign_attributes(user_params)
+			@user.assign_attributes(update_user_params)
 			if @user.save
 				redirect_to @user
 			else
@@ -66,5 +67,9 @@ class UsersController < ApplicationController
 	private
 	def user_params
 		params.require(:user).permit :name, :phone, :company, :password, :password_confirmation, :time_zone
+	end
+
+	def update_user_params
+		params.require(:user).permit :name, :company, :password, :password_confirmation, :time_zone
 	end
 end

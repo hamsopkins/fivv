@@ -20,4 +20,10 @@
 			</div>
 		</div>
 	<% end %>
+	<%= javascript_include_tag 'jquery.maskedinput' %>
+	<%= javascript_tag do %>
+		jQuery(function($){
+	   $("#session_phone").mask("999-999-9999");
+		});
+	<% end %>
 </fieldset>

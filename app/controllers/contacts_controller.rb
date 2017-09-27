@@ -25,6 +25,7 @@ class ContactsController < ApplicationController
 	def create
 		redirect_to :root unless helpers.logged_in?
 		@contact = Contact.new(contact_params)
+		@contact.phone = @contact.phone.scan(/\d/).join
 		@contact.user = helpers.current_user
 		if @contact.save
 			redirect_to contacts_path
@@ -44,6 +45,7 @@ class ContactsController < ApplicationController
 		@contact = Contact.find_by_id(params[:id])
 		if @contact.user == helpers.current_user
 			@contact.assign_attributes(contact_params)
+			@contact.phone = @contact.phone.scan(/\d/).join
 			if @contact.save
 				redirect_to @contact
 			else

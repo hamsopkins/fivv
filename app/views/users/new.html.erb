@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<%= f.label(:phone, "Mobile number (digits only)", class: "col-lg-2 control-label") %>
+			<%= f.label(:phone, "Mobile number", class: "col-lg-2 control-label") %>
 			<div class="col-lg-10">
 				<%= f.telephone_field(:phone, class: "form-control", maxlength: 10) %>
 			</div>
@@ -52,3 +52,9 @@
 		</div>
 	<% end %>
 </fieldset>
+<%= javascript_include_tag 'jquery.maskedinput' %>
+<%= javascript_tag do %>
+	jQuery(function($){
+   $("#user_phone").mask("999-999-9999");
+	});
+<% end %>

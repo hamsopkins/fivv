@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
 	end
 
 	def create
-		user = User.find_by_phone(session_params[:phone])
+		user = User.find_by_phone(session_params[:phone].scan(/\d/).join)
 		if user
 			if Time.now > (user.expiration || Time.now + 604800)
 				redirect_to account_expired_url

@@ -17,23 +17,25 @@
   </div>
   <div class="panel-body">
 		<p><%= @conference.start_time.strftime('%b %d, %Y from %l:%M %p') %> to <%= @conference.end_time.strftime('%l:%M %p %Z') %></p>
-		<% if @conference.conference_contacts.any? %>
-			<p>Participants</p>
-			<ul>
-				<% @conference.conference_contacts.each do |c| %>
-					<li><%= c.contact.name %></li>
-				<% end %>
-			</ul>
-		<% else %>
-			<div class="alert alert-dismissible alert-warning">
-	  		No participants have been added to this conference!
-			</div>
+		<% if logged_in? %>
+			<% if @conference.conference_contacts.any? %>
+				<p>Participants</p>
+				<ul>
+					<% @conference.conference_contacts.each do |c| %>
+						<li><%= c.contact.name %></li>
+					<% end %>
+				</ul>
+			<% else %>
+				<div class="alert alert-dismissible alert-warning">
+		  		No participants have been added to this conference!
+				</div>
+			<% end %>
+			<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
 		<% end %>
-		<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
   </div>
 </div>
 <% if @token %>
-  <%= javascript_include_tag "http://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js" %>
+  <%= javascript_include_tag "https://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js" %>
 	<%= javascript_tag do %>
   	var token = '<%= @token %>';
 	<% end %>

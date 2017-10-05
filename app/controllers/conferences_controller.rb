@@ -3,11 +3,21 @@ class ConferencesController < ApplicationController
 	around_action :user_time_zone, only: [:edit, :show, :index, :create, :update]
 
 	def new
+		if helpers.current_user.conference_count >= 5
+			@errors = ["Maximum conferences exceeded for trial account."]
+			@user = helpers.current_user
+			render :index
+		end
 		@conference = Conference.new unless @conference
 	end
 
 	def create
 		redirect_to :root unless helpers.logged_in?
+		if helpers.current_user.conference_count >= 5
+			@errors = ["Maximum conferences exceeded for trial account."]
+			@user = helpers.current_user
+			render :index
+		end	
 		@conference = Conference.new(conference_params)
 		@conference.user = helpers.current_user
 		@conference.access_code = rand.to_s[2..7]
@@ -17,6 +27,9 @@ class ConferencesController < ApplicationController
 			@conference.inform_admin(admin_pin)
 		end
 		if @conference.save
+			user = helpers.current_user
+			user.conference_count += 1
+			user.save
 			redirect_to @conference
 		else
 			@errors = @conference.errors.full_messages
@@ -30,6 +43,7 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
+		redirect_to @conference if Time.now > @conference.start_time
 		render :edit
 	end
 
@@ -38,6 +52,7 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
+		redirect_to @conference if Time.now > @conference.start_time
 		@conference.assign_attributes(update_conference_params)
 		if @conference.valid?
 			existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
@@ -62,6 +77,7 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
+		redirect_to @conference if Time.now > @conference.start_time
 		@conference.conference_contacts.each { |contact| contact.inform_canceled }
 		@conference.destroy
 		redirect_to conferences_path

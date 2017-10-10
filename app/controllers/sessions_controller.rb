@@ -38,7 +38,7 @@ class SessionsController < ApplicationController
 
 	def generate_token
 		redirect_to :root if helpers.logged_in?
-		@user = User.find_by_phone(params['token']['phone'])
+		@user = User.find_by_phone(params['token']['phone'].scan(/\d/).join)
 		if @user
 			RecoveryToken.where("user_id = ?", @user.id).destroy_all
 			token = RecoveryToken.new(user: @user, token: rand.to_s[2..7])
@@ -66,7 +66,7 @@ class SessionsController < ApplicationController
 
 	def reset_password
 		redirect_to :root if helpers.logged_in?
-		@user = User.find_by_phone(params['token']['phone'])
+		@user = User.find_by_phone(params['token']['phone'].scan(/\d/).join)
 		if @user
 			token = RecoveryToken.where("user_id = ? and token = ?", @user.id, params['token']['token']).first
 			if token

@@ -50,3 +50,9 @@
 		</div>
 	<% end %>
 </fieldset>
+<%= javascript_include_tag 'jquery.maskedinput' %>
+<%= javascript_tag do %>
+	jQuery(function($){
+   $("#user_phone").mask("999-999-9999");
+	});
+<% end %>

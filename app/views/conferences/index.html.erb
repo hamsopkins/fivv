@@ -1,6 +1,6 @@
 <h1>Your Upcoming Conferences</h1>
 <div>
-	<%= link_to("New Conference", new_conference_path, class: "btn btn-success") %>
+	<%= link_to("New Conference", new_conference_path, class: "btn btn-success") if current_user.conference_count < 5 %>
 </div>
 <% if @conferences.any? %>
 	<% @conferences.each do |conference| %>

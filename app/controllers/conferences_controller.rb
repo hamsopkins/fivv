@@ -5,6 +5,7 @@ class ConferencesController < ApplicationController
 	def new
 		if helpers.current_user.conference_count >= 5
 			@errors = ["Maximum conferences exceeded for trial account."]
+			@conferences = []
 			@user = helpers.current_user
 			render :index
 		end
@@ -15,6 +16,7 @@ class ConferencesController < ApplicationController
 		redirect_to :root unless helpers.logged_in?
 		if helpers.current_user.conference_count >= 5
 			@errors = ["Maximum conferences exceeded for trial account."]
+			@conferences = []
 			@user = helpers.current_user
 			render :index
 		end	
@@ -27,9 +29,7 @@ class ConferencesController < ApplicationController
 			@conference.inform_admin(admin_pin)
 		end
 		if @conference.save
-			user = helpers.current_user
-			user.conference_count += 1
-			user.save
+			@conference.user.increment!(:conference_count)
 			redirect_to @conference
 		else
 			@errors = @conference.errors.full_messages
@@ -44,7 +44,7 @@ class ConferencesController < ApplicationController
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
 		redirect_to @conference if Time.now > @conference.start_time
-		render :edit
+		# render :edit
 	end
 
 	def update
@@ -52,23 +52,26 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
-		redirect_to @conference if Time.now > @conference.start_time
-		@conference.assign_attributes(update_conference_params)
-		if @conference.valid?
-			existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
-			updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
-			remaining_contact_ids = existing_contact_ids & updated_contact_ids
-			uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
-			uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
-			remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
-			new_contact_ids = updated_contact_ids - remaining_contact_ids
-			@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
-		end
-		if @conference.save
+		if Time.now > @conference.start_time
 			redirect_to @conference
 		else
-			@errors = @conference.errors.full_messages
-			render :edit
+			@conference.assign_attributes(update_conference_params)
+			if @conference.valid?
+				existing_contact_ids = @conference.conference_contacts.map { |contact| contact.contact.id }
+				updated_contact_ids = params['conference']['contacts'].reject {|id| id.length == 0 || Contact.find(id).user != helpers.current_user }.map(&:to_i)
+				remaining_contact_ids = existing_contact_ids & updated_contact_ids
+				uninvited_contact_ids = existing_contact_ids - remaining_contact_ids
+				uninvited_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_canceled }
+				remaining_contact_ids.map { |id| ConferenceContact.where("contact_id = ? and conference_id = ?", id, @conference.id) }.flatten.each { |c| c.inform_updated_time }
+				new_contact_ids = updated_contact_ids - remaining_contact_ids
+				@conference.conference_contacts << new_contact_ids.map {|id| ConferenceContact.new(contact_id: id, conference: @conference).set_pin }
+			end
+			if @conference.save
+				redirect_to @conference
+			else
+				@errors = @conference.errors.full_messages
+				render :edit
+			end
 		end
 	end
 
@@ -77,10 +80,13 @@ class ConferencesController < ApplicationController
 		@conference = Conference.find_by_id(params[:id])
 		redirect_to conferences_path unless @conference
 		redirect_to conferences_path unless @conference.user == helpers.current_user
-		redirect_to @conference if Time.now > @conference.start_time
-		@conference.conference_contacts.each { |contact| contact.inform_canceled }
-		@conference.destroy
-		redirect_to conferences_path
+		if Time.now > @conference.start_time
+			redirect_to @conference
+		else
+			@conference.conference_contacts.each { |contact| contact.inform_canceled }
+			@conference.destroy
+			redirect_to conferences_path
+		end
 	end
 
 	def index
@@ -93,6 +99,7 @@ class ConferencesController < ApplicationController
 	def show
 		redirect_to :root unless helpers.logged_in?
 		@conference = Conference.find_by_id(params[:id])
+		redirect_to conferences_path unless @conference
 		redirect_to :root unless helpers.current_user == @conference.user
 		if Time.now > @conference.start_time - 300 && Time.now < @conference.end_time
 	  	capability = Twilio::JWT::ClientCapability.new ENV['TWILIO_SID'], ENV['TWILIO_AUTH_TOKEN']

@@ -30,7 +30,9 @@
 		  		No participants have been added to this conference!
 				</div>
 			<% end %>
-			<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
+			<% unless Time.now - 300 > @conference.start_time %>
+				<span><%= link_to("Delete", @conference, method: "delete", class: "btn btn-danger btn-sm") %> <%= link_to("Edit", edit_conference_path(@conference), class: "btn btn-info btn-sm") %></span>
+			<% end %>
 		<% end %>
   </div>
 </div>

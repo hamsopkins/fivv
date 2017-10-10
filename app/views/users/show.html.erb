@@ -4,6 +4,9 @@
   </div>
   <div class="panel-body">
   	<p><%= distance_of_time_in_words(Time.now, @user.expiration).capitalize %> remaining before your trial account expires!</p>
+    <% if @user.conference_count >= 5 %>
+      <p>You have scheduled the maximum number of conferences allowed for your trial account.</p>
+    <% end %>
   </div>
 </div>
 <% if @current_conferences.any? %>
